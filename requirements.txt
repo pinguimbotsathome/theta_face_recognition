@@ -1,0 +1,5 @@
+mediapipe
+dlib
+cmake
+opencv-python
+face_recognition

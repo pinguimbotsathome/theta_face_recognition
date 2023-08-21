@@ -1,0 +1,4 @@
+<launch>
+    <node name="face_recognition_node"        pkg="theta_face_recognition"      type="kinect_image_node.py">    </node>
+    <node name="Kinect_image_node"        pkg="theta_face_recognition"      type="face_detection_node.py">    </node>
+</launch>
