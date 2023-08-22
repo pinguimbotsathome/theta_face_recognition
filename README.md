@@ -8,6 +8,6 @@ The theta_face_recognition package uses Freenect_stack and Oppeni_camera to star
   
 * **`face_detection_node:`** : This node uses the topic provided by the kinect_image_node and saves a frame into a .jpg image, being a picture of the Operator.
   
-* **`face_recognition_node.:`** : This node also uses the topic provided by the kinect_image_node and saves a frame into a image, with the photo to be compared as Comparator.png.
+* **`face_recognition_node.:`** : This node also uses the topic provided by the kinect_image_node and saves a frame into a image, with the photo to be compared as Comparador.png.
   
-* **`trainer_node.:`** : This node compares the image of the Operator with the Comparator and returns whether the Operator was found in the other image.
+* **`trainer_node.:`** : This node compares the image of the Operator with the Comparador and returns whether the Operator was found in the other image.
