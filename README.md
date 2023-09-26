@@ -1,7 +1,7 @@
 # Theta_face_recognition 
 
 ## Overview
-The theta_face_recognition package uses Freenect_stack and Oppeni_camera to start the Kinect and be able to use its image topics. We use Dlib to perform face recognition and comparison in the images.
+The theta_face_recognition package uses Freenect_stack and Openni_camera to start the Kinect and be able to use its image topics. We use Dlib to perform face recognition and comparison in the images.
 
 ## Nodos
 * **`kinect_image_node:`** : This node uses the topic provided by the Kinect and converting between ROS images and OpenCV images, thus functioning as a bridge.
