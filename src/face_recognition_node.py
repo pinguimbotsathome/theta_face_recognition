@@ -2,12 +2,20 @@
 import rospy
 import cv2
 import face_recognition as fr
+import rospkg
+import os.path
+
+rospy.init_node('image_receive_node', anonymous=True)
+
+PACK_DIR = rospkg.RosPack().get_path("theta_face_recognition")
+OPERADOR_DIR = os.path.join(PACK_DIR,"dataset/operador.png")
+COMPARADOR_DIR = os.path.join(PACK_DIR,"dataset/comparador.png")
 
 def recogniton():
-    imgOperador = fr.load_image_file("/home/dallagnol/work_ws/src/theta_face_recognition/dataset/Operador.png")
+    imgOperador = fr.load_image_file(OPERADOR_DIR)
     imgOperador = cv2.cvtColor(imgOperador, cv2.COLOR_BGR2RGB)
 
-    imgComparador = fr.load_image_file("/home/dallagnol/work_ws/src/theta_face_recognition/dataset/Comparador.png")
+    imgComparador = fr.load_image_file(COMPARADOR_DIR)
     imgComparador = cv2.cvtColor(imgComparador, cv2.COLOR_BGR2RGB)
 
     faceLoc = fr.face_locations(imgComparador)[0]
@@ -32,7 +40,6 @@ def recogniton():
 
 if __name__ == '__main__':
     try:
-        rospy.init_node('image_receive_node', anonymous=True)
         recogniton()
     except rospy.ROSInterruptException:
         pass
