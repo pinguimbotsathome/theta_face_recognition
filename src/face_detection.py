@@ -14,25 +14,25 @@ COMPARADOR_DIR = os.path.join(PACK_DIR, "dataset/comparador.png")
 
 bridge = CvBridge()
 
-def operador(req):
-    webcam = cv2.VideoCapture(0)
-    if webcam.isOpened():
-        validacao, frame = webcam.read()
-        while validacao:
-            validacao, frame = webcam.read()
-            if os.path.exists(OPERADOR_DIR):
-                break
-            else:
-                cv2.imwrite(OPERADOR_DIR, frame)
+def operador(data):
+    rospy.Subscriber("bridge/original_image", Image, operador, queue_size=1)
+    bridge_op = CvBridge()
+    cv_image_operador = bridge_op.imgmsg_to_cv2(data, "bgr8")
+    
+    if os.path.exists(OPERADOR_DIR):
+        breakpoint
+    else:
+        cv2.imwrite(OPERADOR_DIR, cv_image_operador)
 
 def comparador(data):
-    bridge = CvBridge()
-    cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
+    rospy.Subscriber("bridge/original_image", Image, comparador, queue_size=1)
+    bridge_comp = CvBridge()
+    cv_image_comp = bridge_comp.imgmsg_to_cv2(data, "bgr8")
     
     if os.path.exists(COMPARADOR_DIR):
-        return
+        breakpoint
     else:
-        cv2.imwrite(COMPARADOR_DIR, cv_image)
+        cv2.imwrite(COMPARADOR_DIR, cv_image_comp)
 
 def recogniton():
     imgOperador = fr.load_image_file(OPERADOR_DIR)
@@ -64,7 +64,6 @@ def recogniton():
 if __name__ == '__main__':
     try:
         rospy.init_node('face_detection_node', anonymous=True)
-        rospy.Subscriber("bridge/original_image", Image, comparador, queue_size=1)
 
         sub_operador = rospy.Subscriber('/face_detection/operador_take', Empty, operador)
         sub_comparador = rospy.Subscriber('/face_detection/comparador_take', Empty, comparador)
