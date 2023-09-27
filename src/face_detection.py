@@ -11,7 +11,7 @@ PACK_DIR = rospkg.RosPack().get_path("theta_face_recognition")
 OPERADOR_DIR = os.path.join(PACK_DIR,"dataset/operador.png")
 COMPARADOR_DIR = os.path.join(PACK_DIR,"dataset/comparador.png")
 
-def operador():
+def operador(req):
     webcam = cv2.VideoCapture(0)
     if webcam.isOpened():
         validacao, frame = webcam.read()
@@ -22,16 +22,13 @@ def operador():
             else:   
                 cv2.imwrite(OPERADOR_DIR, frame)
 
-def comparador():
-    webcam = cv2.VideoCapture(0)
-    if webcam.isOpened():
-        validacao, frame = webcam.read()
-        while validacao:
-            validacao, frame = webcam.read()
-            if os.path.exists(COMPARADOR_DIR):
-                break
-            else:   
-                cv2.imwrite(COMPARADOR_DIR, frame)
+def comparador(req):
+    image_kinect = rospy.Subscriber('/kinect/converted_image')
+    while image_kinect:
+        if os.path.exists(COMPARADOR_DIR):
+            break
+        else:   
+            cv2.imwrite(COMPARADOR_DIR, image_kinect)
 
 if __name__ == '__main__':
     try:
