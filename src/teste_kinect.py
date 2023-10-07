@@ -3,7 +3,8 @@ import rospy
 import cv2
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
-from std_msgs import Empty
+from std_msgs.msg import Empty
+from theta_face_recognition.srv import FaceRec, FaceRecResponse
 
 import rospkg
 import face_recognition as fr
@@ -11,32 +12,36 @@ import os.path
 
 
 PACK_DIR = rospkg.RosPack().get_path("theta_face_recognition")
-OPERADOR_DIR = os.path.join(PACK_DIR, "dataset/operador.png")
-COMPARADOR_DIR = os.path.join(PACK_DIR, "dataset/comparador.png")
+OPERADOR_DIR = os.path.join(PACK_DIR, "dataset/operador.jpeg")
+COMPARADOR_DIR = os.path.join(PACK_DIR, "dataset/comparador.jpg")
 
 bridge = CvBridge()
 
-img_depth = []
+latest_img = None
+latest_depth = None
+take_photo = False
 
 def operador(data):
-  
-    cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
-    if os.path.exists(OPERADOR_DIR):
-        breakpoint
-    else:
-        cv2.imwrite(OPERADOR_DIR, cv_image)
+    global latest_img
+    # cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
+    # if os.path.exists(OPERADOR_DIR):
+    #     breakpoint
+    # else:
+    cv2.imwrite(OPERADOR_DIR, latest_img)
+    rospy.loginfo("operador photo taken")
 
 def comparador(data):
-  
-    cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
-    if os.path.exists(COMPARADOR_DIR):
-        breakpoint
-    else:
-        cv2.imwrite(COMPARADOR_DIR, cv_image)
+    global latest_img
+    # cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
+    # if os.path.exists(COMPARADOR_DIR):
+    #     breakpoint
+    # else:
+    cv2.imwrite(COMPARADOR_DIR, latest_img)
+    rospy.loginfo("comparator photo taken")
 
-def recogniton():
-    sub_depth = rospy.Subscriber('/camera/depth/image', Image, depth_image)
-
+def recogniton(req):
+    global latest_depth
+    # sub_depth = rospy.Subscriber('/camera/depth/image', Image, depth_image)
     imgOperador = fr.load_image_file(OPERADOR_DIR)
     imgOperador = cv2.cvtColor(imgOperador, cv2.COLOR_BGR2RGB)
 
@@ -59,30 +64,49 @@ def recogniton():
 
     rospy.loginfo(f'Coordenadas: x1={x1}, y1={y1}, x2={x2}, y2={y2}')
 
-    cv2.imshow('Operador', imgOperador)
-    cv2.imshow('Comparador', imgComparador)
+    # cv2.imshow('Operador', imgOperador)
+    # cv2.imshow('Comparador', imgComparador)
+    distance = latest_depth[round((x2+x1)/2)][round((y2+y1)/2)]
+    # cv2.waitKey()
+    return FaceRecResponse(x1=x1,y1=y1,x2=x2,y2=y2, distance=distance)
 
-    cv2.waitKey()
-    
-    while not rospy.is_shutdown():
-        pass
-    
+def change_flag_photo(data):
+    global take_photo
+    take_photo = not take_photo
+    if take_photo:
+        rospy.loginfo("enabling photo")
+    else:
+        rospy.loginfo("disabling photo")
 
-def depth_image(data):
-    img_depth = bridge.imgmsg_to_cv2(data, "bgr8") # change encode
+def img_kinect_rgb(data):
+    global take_photo
+    global latest_img
+    if take_photo:
+        cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
+        latest_img = cv_image
+        rospy.loginfo('image saved')
 
-
+def img_kinect_depth(data):
+    global take_photo
+    global latest_depth
+    if take_photo:
+        cv_image = bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
+        latest_depth = cv_image
+        rospy.loginfo('image saved')
 
 if __name__ == '__main__':
     rospy.init_node('kinect_image_node', anonymous=True)  
 
-    rospy.Subscriber("camera/rgb/image_raw", Image, image_callback, queue_size=1) 
+    rospy.Subscriber("camera/rgb/image_raw", Image, img_kinect_rgb) 
 
-    sub_operador = rospy.Subscriber('/face_detection/operador_take', Empty, operador)
-    sub_comparador = rospy.Subscriber('/face_detection/comparador_take', Empty, comparador)
-    sub_recognition = rospy.Subscriber('/face_detection/recognition', Empty,recogniton)
+    rospy.Subscriber("camera/depth/image_raw", Image, img_kinect_depth) 
 
-    rospy.spin()
+    rospy.Subscriber('/face_detection/operador_take', Empty, operador)
+    rospy.Subscriber('/face_detection/comparador_take', Empty, comparador)
+    rospy.Subscriber('/face_detection/recognition', Empty,recogniton)
+    rospy.Subscriber('/face_detection/enable_disable_camera', Empty, change_flag_photo)
+
+    rospy.Service('services/faceRecognition', FaceRec, recogniton)
 
     while not rospy.is_shutdown():
-        pass
+        rospy.spin()

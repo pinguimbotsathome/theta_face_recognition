@@ -8,6 +8,7 @@ project(theta_face_recognition)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  message_generation
   cv_bridge
   roscpp
   rospy
@@ -57,12 +58,12 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
-
+add_service_files(
+  DIRECTORY 
+    srv
+  FILES
+    FaceRec.srv
+)
 ## Generate actions in the 'action' folder
 # add_action_files(
 #   FILES
@@ -71,10 +72,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   sensor_msgs#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -108,7 +109,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES theta_face_recognition
-#  CATKIN_DEPENDS cv_bridge roscpp rospy sensor_msgs std_msgs std_srvs
+  CATKIN_DEPENDS message_generation cv_bridge roscpp rospy sensor_msgs std_msgs std_srvs
 #  DEPENDS system_lib
 )
 
@@ -162,10 +163,11 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# catkin_install_python(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+catkin_install_python(PROGRAMS
+  src/teste_kinect.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
