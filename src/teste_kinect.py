@@ -48,6 +48,14 @@ def recogniton(req):
     imgComparador = fr.load_image_file(COMPARADOR_DIR)
     imgComparador = cv2.cvtColor(imgComparador, cv2.COLOR_BGR2RGB)
 
+
+    detector_face_hog = dlib.get_frontal_face_detector()
+    deteccoes = detector_face_hog(comparador,1)
+    deteccoes, len(deteccoes)
+
+    for face in(deteccoes):
+        print(face)
+
     faceLoc = fr.face_locations(imgComparador)[0]
     cv2.rectangle(imgComparador, (faceLoc[3], faceLoc[0]), (faceLoc[1], faceLoc[2]), (0, 255, 0), 2)
 
