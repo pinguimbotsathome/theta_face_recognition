@@ -21,6 +21,14 @@ latest_img = None
 latest_depth = None
 take_photo = False
 
+class FaceRecognition:
+    face_location = []
+    face_encodings = []
+    face_names = []
+    known_face_encodings = []
+    known_face_names = []
+    
+
 def operador(data):
     global latest_img
     # cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
@@ -39,7 +47,7 @@ def comparador(data):
     cv2.imwrite(COMPARADOR_DIR, latest_img)
     rospy.loginfo("comparator photo taken")
 
-def recogniton(req):
+def recogniton(self):
     global latest_depth
     # sub_depth = rospy.Subscriber('/camera/depth/image', Image, depth_image)
     imgOperador = fr.load_image_file(OPERADOR_DIR)
@@ -61,6 +69,12 @@ def recogniton(req):
 
     encondeOperador = fr.face_encodings(imgOperador)[0]
     encodeComparador = fr.face_encodings(imgComparador)[0]
+
+    FaceRecognition.known_face_encodings.append(encondeOperador)
+    FaceRecognition.known_face_names.append(imgOperador)
+
+    rospy.loginfo(FaceRecognition.known_face_names)
+
 
     comparacao = fr.compare_faces([encondeOperador], encodeComparador)
     distancia = fr.face_distance([encondeOperador], encodeComparador)
